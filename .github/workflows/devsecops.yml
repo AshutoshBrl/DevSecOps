@@ -9,40 +9,41 @@ jobs:
   devsecops:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/node@master # For node projects, change accordingly
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}    
-      with:
-        command: monitor
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+  
+      - name: Install dependencies
+        run: npm install
+      - name: dockerise
+        run: docker build -t backend-ashutosh . && docker run -d -p 3000:3000 backend-ashutosh
+  
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master 
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}    
+        with:
+          command: monitor
 
  
     
     # steps:
-    - uses: actions/checkout@v3
-
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm install
-    - name: dockerise
-      run: docker build -t backend-ashutosh . && docker run -d -p 3000:3000 backend-ashutosh
-
+    
 
   
     # permissions: write-all
    
     # steps:
-    - name: ZAP Scan
-      uses: zaproxy/action-baseline@v0.6.1
-      with:
-        token: ${{ secrets.GH_TOKEN }}
-        docker_name: 'owasp/zap2docker-stable'
-        target: 'http:localhost:3000'
-        rules_file_name: '.zap/rules.tsv'
-        cmd_options: '-a'
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.6.1
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          docker_name: 'owasp/zap2docker-stable'
+          target: 'http://localhost:3000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
