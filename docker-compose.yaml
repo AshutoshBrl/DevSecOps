@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16.2-alpine3.19
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  backend:
+    build:
+      context: .
+    ports:
+      - '3000:3000'
+    command: >
+      sh -c "npm run migrate && npm start"
+    healthcheck:
+      test: curl --fail http://localhost:3000 || exit 1
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      - db
+    
+  frontend:
+    build:
+      context: /home/ash/Leapfrog-Internship-assignments/nodejs-typescript-starter/client/
+    ports:
+      - '5173:5173'
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
