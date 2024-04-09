@@ -32,7 +32,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install && yarn start
+        run: npm install
+      - name: dockerise
+        run: docker build -t backend-ashutosh . && docker run -d -p 5000:5000 backend-ashutosh
+
 
   zap_scan:
     runs-on: ubuntu-latest
