@@ -18,9 +18,13 @@ jobs:
           cache: 'npm'
   
       - name: Install dependencies
-        run: npm install
+        run: |
+          yarn install
+          yarn build
       - name: dockerise
-        run: docker build -t backend-ashutosh . && docker run -d -p 3000:3000 backend-ashutosh
+        run: |
+          docker build -t backend-ashutosh .
+          docker run -d -p 3000:3000 backend-ashutosh
   
       - uses: actions/checkout@master
       - name: Run Snyk to check for vulnerabilities
@@ -30,14 +34,6 @@ jobs:
         with:
           command: monitor
 
- 
-    
-    # steps:
-    
-
-  
-    # permissions: write-all
-   
     # steps:
       - name: ZAP Scan
         uses: zaproxy/action-baseline@v0.6.1
@@ -47,3 +43,4 @@ jobs:
           target: 'http://localhost:3000'
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
+        
